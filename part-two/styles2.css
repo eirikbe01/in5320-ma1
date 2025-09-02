@@ -1,0 +1,35 @@
+.mainContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.inputContainer {
+
+}
+
+.listContainer {
+
+}
+
+
+.inputField {
+    padding: 12px;
+    border: 1px solid black;
+}
+
+.addBtn {
+    padding: 8px;
+}
+
+.deleteBtn {
+    margin-left: 12px;
+    border: 1px solid;
+    border-radius: 30%;
+    background-color: inherit;
+    padding: 4px 8px;
+}
+
+.deleteBtn:hover {
+    cursor: pointer;
+    background-color: antiquewhite;
+}
