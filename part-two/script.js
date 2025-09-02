@@ -43,4 +43,17 @@ list.addEventListener("click", (e) => {
         console.log("clicked: ", btn.id);
         btn.closest("li")?.remove();
     }
-})
+});
+
+
+const startsWithWord = (element, searchWord) => {
+    if(element.startsWith(searchWord)) {
+        return true;
+    } else {
+        return false;
+    }
+};
+
+const search = (list, searchWord) => {
+    return list.filter((item) => startsWithWord(item, searchWord));
+};
