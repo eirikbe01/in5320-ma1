@@ -65,7 +65,6 @@ const searchInput = document.querySelector(".searchField");
 
 searchInput.addEventListener("input", (e) => {
     const query = e.target.value;
-    console.log(query);
 
     const items = Array.from(list.querySelectorAll("li"));
     const texts = items.map((li) => (li.querySelector("span")?.textContent || "").toLowerCase());
@@ -77,3 +76,76 @@ searchInput.addEventListener("input", (e) => {
         li.hidden = !matches.includes(text);
     });
 });
+
+
+
+// step 5
+// fetch countries
+let countries;
+$.ajax({
+    url: 'https://d6wn6bmjj722w.population.io/1.0/countries/',
+    method: 'GET',
+    headers: {
+        'Accept': 'application/json'
+    },
+    success: function(response) {
+        countries = response.countries;
+    },
+    error: function(err) {
+        console.error('Something went wrong: ', err);
+    }
+});
+
+
+const countrySearchInput = document.getElementById("countryInput");
+const countryBtn = document.getElementById("countryBtnId");
+const countryList = document.getElementById("countryListId");
+
+countryBtn.addEventListener("click", () => {
+    const inputVal = countrySearchInput.value.trim();
+    if (!inputVal) return;
+    if (!countries.includes(inputVal)) {
+        alert(`${inputVal} is not a supported country`);
+    }
+    // fetch population
+    $.ajax({
+        url: `https://d6wn6bmjj722w.population.io/1.0/population/${inputVal}/today-and-tomorrow/`,
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        },
+        success: function (response) {
+            const population = Number(response.total_population[0].population);
+            const formatted = population.toLocaleString('no-NO');
+            const text = `${inputVal} - ${formatted}`
+            countryList.appendChild(makeListItem(text));
+            countrySearchInput.value = "";
+            countrySearchInput.focus();
+        },
+        error: function(err) {
+            console.error('Failed with error: ', err);
+        }
+    });
+});
+
+countrySearchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        countryBtn.click();
+    }
+});
+const searchInputV2 = document.getElementById('searchInputV2Id');
+searchInputV2.addEventListener("input", (e) => {
+    const query = e.target.value;
+
+    const items = Array.from(countryList.querySelectorAll("li"));
+    const texts = items.map((li) => (li.querySelector("span")?.textContent || "").toLowerCase());
+
+
+    const matches = search(texts, query);
+    items.forEach((li, i) => {
+        const text = texts[i];
+        li.hidden = !matches.includes(text);
+    });
+});
+
+
