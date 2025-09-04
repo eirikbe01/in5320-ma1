@@ -11,6 +11,12 @@
 
 }
 
+.searchField {
+    padding: 8px;
+    border: 1px solid black;
+    margin-top: 8px;
+}
+
 
 .inputField {
     padding: 12px;

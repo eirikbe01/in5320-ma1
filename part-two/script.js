@@ -1,4 +1,6 @@
 
+// step 1 and 2
+
 let counter = 1;
 
 const list = document.getElementById("listId");
@@ -22,7 +24,7 @@ const makeListItem = (text) => {
     return listItem;
 }
 
-list.InnerHTML = "";
+list.innerHTML = "";
 addBtn.addEventListener("click", () => {
     const inputVal = input.value.trim();
     if (!inputVal) return;
@@ -31,23 +33,24 @@ addBtn.addEventListener("click", () => {
     input.focus();
 });
 
-input.addEventListener("click", (e) => {
+// search on Enter key
+input.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
         addBtn.click();
     }
 });
 
 list.addEventListener("click", (e) => {
-    if (e.target.matches("button.deleteBtn")) {
-        const btn = e.target;
-        console.log("clicked: ", btn.id);
-        btn.closest("li")?.remove();
-    }
+    const btn = e.target;
+    if (!btn) return;
+
+    btn.closest("li")?.remove();
 });
 
 
+// step 3 and 4
 const startsWithWord = (element, searchWord) => {
-    if(element.startsWith(searchWord)) {
+    if(element.toLowerCase().startsWith(searchWord.toLowerCase())) {
         return true;
     } else {
         return false;
@@ -57,3 +60,20 @@ const startsWithWord = (element, searchWord) => {
 const search = (list, searchWord) => {
     return list.filter((item) => startsWithWord(item, searchWord));
 };
+
+const searchInput = document.querySelector(".searchField");
+
+searchInput.addEventListener("input", (e) => {
+    const query = e.target.value;
+    console.log(query);
+
+    const items = Array.from(list.querySelectorAll("li"));
+    const texts = items.map((li) => (li.querySelector("span")?.textContent || "").toLowerCase());
+
+
+    const matches = search(texts, query);
+    items.forEach((li, i) => {
+        const text = texts[i];
+        li.hidden = !matches.includes(text);
+    });
+});
