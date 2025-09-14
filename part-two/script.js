@@ -2,19 +2,24 @@
 // step 1 and 2
 
 let counter = 1;
+// SOT for currencies
+let currencyItems = [];
 
 const list = document.getElementById("listId");
 const input = document.querySelector(".inputField");
 const addBtn = document.getElementById("addBtnId");
+const searchInput = document.querySelector(".searchField");
 
-const makeListItem = (text) => {
+const makeListItem = (text, id) => {
     const listItem = document.createElement("li");
+    listItem.dataset.id = String(id);
+
     const span = document.createElement("span");
     span.textContent = text + " ";
 
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.id = `btn-${counter++}`;
+    btn.id = `btn-${id}`;
     btn.className = "deleteBtn";
     btn.setAttribute("aria-label", "Delete Item");
     btn.title = "Delete";
@@ -25,12 +30,19 @@ const makeListItem = (text) => {
 }
 
 list.innerHTML = "";
+
 addBtn.addEventListener("click", () => {
     const inputVal = input.value.trim();
     if (!inputVal) return;
-    list.appendChild(makeListItem(inputVal));
+
+    const id = counter++;
+    currencyItems.push({ id, text: inputVal })
+
     input.value = "";
     input.focus();
+    
+    const currentQuery = searchInput.value.trim();
+    render(list, currencyItems, currentQuery);
 });
 
 // search on Enter key
@@ -41,47 +53,52 @@ input.addEventListener("keydown", (e) => {
 });
 
 list.addEventListener("click", (e) => {
-    const btn = e.target;
+    const btn = e.target.closest("button.deleteBtn");
     if (!btn) return;
 
-    btn.closest("li")?.remove();
+    const idStr = btn.id.replace("btn-", "");
+    const id = Number(idStr);
+    currencyItems = currencyItems.filter((it) => it.id !== id);
+
+    const currentQuery = searchInput.value.trim();
+    render(list, currencyItems, currentQuery);
 });
 
 
 // step 3 and 4
+
+const render = (ul, items, query) => {
+    const q = (query || "").trim();
+    ul.innerHTML = "";
+    items
+        .filter((it) => startsWithWord(it.text, q))
+        .forEach((it) => ul.appendChild(makeListItem(it.text, it.id)));
+}
+
 const startsWithWord = (element, searchWord) => {
-    if(element.toLowerCase().startsWith(searchWord.toLowerCase())) {
-        return true;
-    } else {
-        return false;
-    }
+    const query = (searchWord || "").toLowerCase().trim();
+    if (!query) return true;
+    return element.toLowerCase().startsWith(searchWord.toLowerCase());
 };
 
 const search = (list, searchWord) => {
     return list.filter((item) => startsWithWord(item, searchWord));
 };
 
-const searchInput = document.querySelector(".searchField");
+
 
 searchInput.addEventListener("input", (e) => {
-    const query = e.target.value;
-
-    const items = Array.from(list.querySelectorAll("li"));
-    const texts = items.map((li) => (li.querySelector("span")?.textContent || "").toLowerCase());
-
-
-    const matches = search(texts, query);
-    items.forEach((li, i) => {
-        const text = texts[i];
-        li.hidden = !matches.includes(text);
-    });
+    const query = e.target.value.trim();
+    render(list, currencyItems, query);
 });
+
+render(list, currencyItems, "");
 
 
 
 // step 5
 // fetch countries
-let countries;
+let countries = [];
 $.ajax({
     url: 'https://d6wn6bmjj722w.population.io/1.0/countries/',
     method: 'GET',
@@ -100,12 +117,17 @@ $.ajax({
 const countrySearchInput = document.getElementById("countryInput");
 const countryBtn = document.getElementById("countryBtnId");
 const countryList = document.getElementById("countryListId");
+const searchInputV2 = document.getElementById("searchInputV2Id");
+
+let countryItems = [];
 
 countryBtn.addEventListener("click", () => {
     const inputVal = countrySearchInput.value.trim();
     if (!inputVal) return;
+
     if (!countries.includes(inputVal)) {
         alert(`${inputVal} is not a supported country`);
+        return;
     }
     // fetch population
     $.ajax({
@@ -118,9 +140,15 @@ countryBtn.addEventListener("click", () => {
             const population = Number(response.total_population[0].population);
             const formatted = population.toLocaleString('no-NO');
             const text = `${inputVal} - ${formatted}`
-            countryList.appendChild(makeListItem(text));
+
+            const id = counter++;
+            countryItems.push({ id, text });
+
             countrySearchInput.value = "";
             countrySearchInput.focus();
+
+            const currentQuery = searchInputV2.value.trim();
+            render(countryList, countryItems, currentQuery);
         },
         error: function(err) {
             console.error('Failed with error: ', err);
@@ -133,19 +161,24 @@ countrySearchInput.addEventListener('keydown', (e) => {
         countryBtn.click();
     }
 });
-const searchInputV2 = document.getElementById('searchInputV2Id');
+
+countryList.addEventListener("click", (e) => {
+    const btn = e.target.closest("button.deleteBtn");
+    if (!btn) return;
+
+    const idStr = btn.id.replace("btn-", "");
+    const id = Number(idStr);
+    countryItems = countryItems.filter((it) => it.id !== id);
+
+    const currentQuery = searchInputV2.value.trim();
+    render(countryList, countryItems, currentQuery);
+})
+
 searchInputV2.addEventListener("input", (e) => {
-    const query = e.target.value;
+    const query = e.target.value.trim();
 
-    const items = Array.from(countryList.querySelectorAll("li"));
-    const texts = items.map((li) => (li.querySelector("span")?.textContent || "").toLowerCase());
-
-
-    const matches = search(texts, query);
-    items.forEach((li, i) => {
-        const text = texts[i];
-        li.hidden = !matches.includes(text);
-    });
+    render(countryList, countryItems, query);
 });
 
+render(countryList, countryItems, "");
 
