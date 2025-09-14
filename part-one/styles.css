@@ -34,3 +34,38 @@ body {
     justify-content: center;
     margin-right: 24px;
 }
+
+
+/* MEDIA QUERIES */
+
+/* Tablet ≥ 768px */
+@media (min-width:768px){
+    .headerContainer{
+        flex-direction:row;
+        justify-content:space-between;
+        text-align:left
+    }
+    .profilePic{
+        width:220px;
+        height:auto
+    }
+    .contentContainer{
+        grid-template-columns:1fr 1fr
+    }
+}
+
+
+/* Desktop ≥ 1024px */
+@media (min-width:1024px){
+    .contentContainer{
+        grid-template-columns:2fr 1fr
+    }
+}
+
+
+/* Large Desktop ≥ 1280px */
+@media (min-width:1280px){
+    :root{
+        --maxw:1200px
+    }
+}
